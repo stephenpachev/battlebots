@@ -28,34 +28,33 @@ class Board:
         for i, row in enumerate(self.board):
             print(header[i], " ".join(row))
 
+    
     def place(self, ship_type, coord, orientation='horiz'):
-        """Add a ship
-        """
+        """Add a ship if legal, otherwise return false."""
         
         k = ship_type[0].upper()
         if k in self._ships:
-            print("Already added ship!")
+            print(f"Already added ship '{k}'!")
+            return False
         name = ship_abbreviations[k]
         size = ships[name]
-        print("Adding ", name)
         row, col = coord
         if orientation == 'horiz':
             if not (0 < col <= N-size) or not (0<row<=N):
-                raise ValueError("Invalid coordinate!")
+                return False
+            if any(square != '_' for square in self.board[row-1][col-1:col+size-1]): return False
             for j in range(col-1, col+size-1):
-                if self.board[row-1][j] != '_':
-                    raise ValueError("Ships can't overlap!")
                 self.board[row-1][j] = k
         elif orientation == 'vert':
             if not (0 < row <= N-size) or not (0<col<=N):
-                raise ValueError("Invalid coordinate!")
+                return False
+            if any(self.board[i][col-1] != '_' for i in range(row-1, row+size-1)): return False
             for i in range(row-1, row+size-1):
-                if self.board[i][col-1] != '_':
-                    raise ValueError("Ships can't overlap!")
                 self.board[i][col-1] = k
         else:
             raise ValueError("Invalid Orientation!")
         self._ships.add(k)
+        return True
 
     def shot(self, row, col):
         """Add shot"""
